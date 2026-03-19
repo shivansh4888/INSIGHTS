@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+# INSIGHTS
+=======
 # 🧠 PageMind — RAG Webpage Summarizer & Chat Extension
 
 A production-grade Chrome extension that uses **Groq AI + TF-IDF RAG** to summarize any webpage and answer questions about it — **100% free, no payment setup required**.
@@ -109,10 +112,21 @@ rag-summarizer-extension/
 
 ---
 
---
+## 💡 Resume-worthy Highlights
+
+- **RAG Architecture**: Production TF-IDF vectorstore with cosine similarity retrieval
+- **Chrome Extension MV3**: Service workers, content scripts, message passing
+- **LLM Integration**: Groq API with model selection and prompt engineering
+- **Context Window Management**: Chat history truncation, chunk size optimization
+- **Privacy Engineering**: Local-only key storage, no backend server
+- **Frontend Engineering**: Responsive popup UI, streaming-style UX, markdown renderer
+
+---
+
 ## 🛠️ Development Notes
 
 - Works on any `http://` or `https://` page
 - Handles SPAs — click Refresh (↻) after navigation
 - Chat history persists per-tab until refresh or manual clear
 - Groq free tier: ~30 req/min, 6000 tokens/min — sufficient for normal use
+>>>>>>> 725ee69 (Initial commit)
