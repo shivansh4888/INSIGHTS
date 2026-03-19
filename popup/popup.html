@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PageMind</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --bg2: #141416;
+      --bg3: #1a1a1e;
+      --border: #2a2a30;
+      --border2: #333340;
+      --text: #e8e8f0;
+      --text2: #9898a8;
+      --text3: #5a5a6a;
+      --accent: #7c6af7;
+      --accent2: #a594ff;
+      --accent-glow: rgba(124, 106, 247, 0.15);
+      --green: #3ecf8e;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 400px;
+      min-height: 560px;
+      max-height: 640px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .logo-text {
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #e8e8f0, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 28px; height: 28px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text2);
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { background: var(--border); color: var(--text); }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      padding: 7px 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text2);
+      flex-shrink: 0;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--text3);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .status-dot.ready { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .status-dot.loading { background: var(--yellow); animation: pulse 1s infinite; }
+    .status-dot.error { background: var(--red); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .word-count { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      padding: 0 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      gap: 0;
+      flex-shrink: 0;
+    }
+
+    .tab {
+      padding: 9px 14px;
+      cursor: pointer;
+      color: var(--text2);
+      font-size: 12.5px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      color: var(--accent2);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Main Content ── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border2) transparent;
+    }
+
+    /* ── Panels ── */
+    .panel { display: none; flex-direction: column; flex: 1; }
+    .panel.active { display: flex; }
+
+    /* ── Setup Panel ── */
+    .setup-panel {
+      padding: 20px 16px;
+      gap: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .setup-hero {
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .setup-icon { font-size: 36px; margin-bottom: 8px; }
+    .setup-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .setup-sub { font-size: 12.5px; color: var(--text2); line-height: 1.5; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-label a {
+      color: var(--accent2);
+      text-decoration: none;
+      font-size: 11px;
+    }
+    .form-label a:hover { text-decoration: underline; }
+
+    .form-input {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input::placeholder { color: var(--text3); }
+
+    .btn {
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #9c8aff);
+      color: white;
+      box-shadow: 0 2px 12px var(--accent-glow);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--accent-glow); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ── Summary Panel ── */
+    .summary-actions {
+      padding: 10px 16px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .summary-content {
+      padding: 14px 16px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .summary-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      gap: 10px;
+      color: var(--text3);
+    }
+    .summary-placeholder .ph-icon { font-size: 32px; }
+    .summary-placeholder p { font-size: 12.5px; text-align: center; line-height: 1.5; }
+
+    /* Markdown rendering */
+    .summary-md h2 {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 14px 0 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary-md h2:first-child { margin-top: 0; }
+    .summary-md p {
+      color: var(--text2);
+      line-height: 1.6;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .summary-md ul {
+      padding-left: 18px;
+      margin-bottom: 10px;
+    }
+    .summary-md li {
+      color: var(--text2);
+      line-height: 1.6;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    .summary-md strong { color: var(--text); font-weight: 600; }
+    .summary-md code {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent2);
+    }
+
+    /* ── Chat Panel ── */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      animation: fadeUp 0.2s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-role {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .message-bubble {
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .message.user .message-bubble {
+      background: var(--accent-glow);
+      border: 1px solid rgba(124, 106, 247, 0.25);
+      color: var(--text);
+      border-radius: var(--radius) var(--radius) 2px var(--radius);
+    }
+
+    .message.assistant .message-bubble {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      border-radius: var(--radius) var(--radius) var(--radius) 2px;
+    }
+
+    .message.assistant .message-bubble h2,
+    .message.assistant .message-bubble h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 6px 0 4px;
+    }
+    .message.assistant .message-bubble ul { padding-left: 16px; }
+    .message.assistant .message-bubble li { margin-bottom: 3px; }
+    .message.assistant .message-bubble code {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent2);
+    }
+    .message.assistant .message-bubble strong { color: var(--text); }
+
+    .chat-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      gap: 10px;
+      color: var(--text3);
+    }
+    .chat-empty .ph-icon { font-size: 32px; }
+    .chat-empty p { font-size: 12.5px; text-align: center; line-height: 1.5; }
+
+    .suggested-questions {
+      padding: 0 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .sq-label {
+      font-size: 11px;
+      color: var(--text3);
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .sq-chip {
+      padding: 6px 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .sq-chip:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: var(--accent-glow);
+    }
+
+    /* ── Chat Input ── */
+    .chat-input-area {
+      padding: 10px 12px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      resize: none;
+      min-height: 36px;
+      max-height: 80px;
+      line-height: 1.4;
+      transition: border-color 0.15s;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text3); }
+
+    .send-btn {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--accent), #9c8aff);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .send-btn:hover { transform: scale(1.05); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── Typing indicator ── */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 10px 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 6px; height: 6px;
+      background: var(--text3);
+      border-radius: 50%;
+      animation: typing 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* ── Loading skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg3) 25%, var(--border) 50%, var(--bg3) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      height: 14px;
+      margin-bottom: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: 12px;
+      color: var(--text);
+      opacity: 0;
+      transition: all 0.2s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+
+    /* ── Settings Panel ── */
+    .settings-panel {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .settings-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text3);
+      margin-bottom: 2px;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .model-card {
+      padding: 8px 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .model-card.selected { border-color: var(--accent); background: var(--accent-glow); }
+    .model-card-name { font-size: 12px; font-weight: 500; color: var(--text); }
+    .model-card-desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2px 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <span class="logo-text">PageMind</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btn-refresh" title="Re-scan page">↻</button>
+      <button class="icon-btn" id="btn-settings-toggle" title="Settings">⚙</button>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-dot" id="status-dot"></div>
+    <span class="status-text" id="status-text">Initializing…</span>
+    <span class="word-count" id="word-count"></span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="main-tabs">
+    <div class="tab active" data-tab="summary">📄 Summary</div>
+    <div class="tab" data-tab="chat">💬 Chat</div>
+    <div class="tab" data-tab="settings">⚙ Settings</div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content">
+
+    <!-- Setup Panel (shown when no API key) -->
+    <div class="panel active" id="panel-setup">
+      <div class="setup-panel">
+        <div class="setup-hero">
+          <div class="setup-icon">🔑</div>
+          <div class="setup-title">Connect Groq API</div>
+          <div class="setup-sub">Get your free API key from Groq — no credit card required. Supports LLaMA 3 70B model.</div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">
+            <span>Groq API Key</span>
+            <a href="https://console.groq.com/keys" target="_blank">Get free key →</a>
+          </div>
+          <input
+            type="password"
+            class="form-input"
+            id="api-key-input"
+            placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxxx"
+          />
+        </div>
+        <button class="btn btn-primary" id="btn-save-key">
+          <span>✓</span> Save &amp; Connect
+        </button>
+        <div style="font-size: 11.5px; color: var(--text3); text-align: center; line-height: 1.6;">
+          Your key is stored locally in Chrome storage.<br/>
+          Never sent anywhere except directly to Groq API.
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Panel -->
+    <div class="panel" id="panel-summary">
+      <div class="summary-actions">
+        <button class="btn btn-primary" id="btn-summarize" style="flex:1; font-size:12.5px; padding:7px 12px;">
+          ✨ Generate Summary
+        </button>
+        <button class="btn btn-secondary" id="btn-copy-summary" style="padding:7px 10px;" title="Copy to clipboard">
+          📋
+        </button>
+      </div>
+      <div class="summary-content" id="summary-content">
+        <div class="summary-placeholder">
+          <div class="ph-icon">📄</div>
+          <p>Click "Generate Summary" to analyze<br/>this page with Groq AI + RAG</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="panel" id="panel-chat">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-empty">
+          <div class="ph-icon">💬</div>
+          <p>Ask anything about this page.<br/>RAG retrieves the most relevant context.</p>
+        </div>
+      </div>
+      <div class="suggested-questions" id="suggested-qs" style="display:none;">
+        <div class="sq-label">Suggested questions</div>
+      </div>
+      <div class="chat-input-area">
+        <textarea
+          class="chat-input"
+          id="chat-input"
+          placeholder="Ask about this page…"
+          rows="1"
+        ></textarea>
+        <button class="send-btn" id="btn-send">➤</button>
+      </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-panel">
+        <div>
+          <div class="settings-section-title">AI Model</div>
+          <div class="model-grid">
+            <div class="model-card selected" data-model="llama3-70b-8192">
+              <div class="model-card-name">LLaMA 3 70B</div>
+              <div class="model-card-desc">Best quality</div>
+            </div>
+            <div class="model-card" data-model="llama3-8b-8192">
+              <div class="model-card-name">LLaMA 3 8B</div>
+              <div class="model-card-desc">Fastest</div>
+            </div>
+            <div class="model-card" data-model="mixtral-8x7b-32768">
+              <div class="model-card-name">Mixtral 8x7B</div>
+              <div class="model-card-desc">Long context</div>
+            </div>
+            <div class="model-card" data-model="gemma2-9b-it">
+              <div class="model-card-name">Gemma 2 9B</div>
+              <div class="model-card-desc">Google model</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div class="settings-section-title">API Key</div>
+          <div class="form-group">
+            <input type="password" class="form-input" id="settings-key-input" placeholder="gsk_xxxxxxxxxx" />
+          </div>
+          <button class="btn btn-secondary" id="btn-update-key" style="width:100%; margin-top:6px;">Update API Key</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div class="settings-section-title">Data</div>
+          <button class="btn btn-secondary" id="btn-clear-chat" style="width:100%;">🗑 Clear Chat History</button>
+        </div>
+
+        <div style="font-size: 11.5px; color: var(--text3); line-height: 1.6;">
+          <strong style="color: var(--text2);">How it works:</strong> Content is extracted from the page, split into chunks, and indexed with TF-IDF vectors. When you ask a question, the top-matching chunks are retrieved and sent to Groq AI as context.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
